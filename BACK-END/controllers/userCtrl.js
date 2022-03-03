@@ -102,3 +102,14 @@ exports.login = function (req,res){
     
     };
 
+exports.GetOneUser = function(req,res){
+    models.User.findOne({where : {userId : req.params.id}})
+    .then(function(user)
+    {
+        res.status(200).json(user);
+    })
+    .catch(function(err)
+    {
+        res.status(500).json({'error' : 'server error'});
+    })
+};

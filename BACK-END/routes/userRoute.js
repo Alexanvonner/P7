@@ -13,6 +13,7 @@ const router = express.Router();
 router.post('/signup',userController.signup);
 // route login
 router.post("/login" , userController.login)
-
+// route GetOneUser
+router.get('/user/:id', userController.GetOneUser)
 // exportation du module
 module.exports = router;
