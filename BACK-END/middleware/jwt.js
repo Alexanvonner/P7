@@ -24,9 +24,11 @@ module.exports = (req, res, next) => {
   };
 
 
-const GetOneUser = function(req){
+ function decrypt(req){
       const token = req.headers.authorization.split(' ')[1];    
       const decodedToken = jwt.verify(token,`${process.env.SECRETE_KEY_JWT}`);
       const userId = decodedToken.userId;
       return userId;
 }
+
+module.exports.decrypt = decrypt;

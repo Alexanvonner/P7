@@ -13,7 +13,9 @@ const router = express.Router();
 router.post('/signup',userController.signup);
 // route login
 router.post("/login" , userController.login)
-// route GetOneUser
-router.get('/user/:id', userController.GetOneUser)
+// route getUserProfil
+router.get('/me', userController.getUserProfil);
+// route getOneUser
+router.get('/user/:id', userController.getOneUser);
 // exportation du module
 module.exports = router;

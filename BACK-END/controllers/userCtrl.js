@@ -1,6 +1,7 @@
 // import
 const bcrypt = require("bcrypt");
 jwt = require('jsonwebtoken');
+const token = require('../middleware/jwt');
 const dotenv = require('dotenv');
 require('dotenv').config();
 // importation models de la bdd User.js
@@ -102,8 +103,36 @@ exports.login = function (req,res){
     
     };
 
-exports.GetOneUser = function(req,res){
-    models.User.findOne({where : {userId : req.params.id}})
+exports.getUserProfil = function(req,res){
+
+    var headerAuth = req.headers['autorization'];
+    var userId = token.decrypt(req);
+
+    if (userId < 0) {
+        return res.status(400).json({'error' : 'wrong token'});
+    } 
+    models.User.findOne({
+        attributes: ["userId","email","username","bio"],
+        where : {userId : userId}})
+        .then(function(user)
+        {
+            res.status(200).json(user);
+        })
+        .catch(function(err)
+        {
+            res.status(500).json({'error' : 'server error'});
+        })
+    };
+
+
+
+
+
+
+exports.getOneUser = function(req,res){
+    models.User.findOne({
+        attributes: ["userId","email","username","bio"],
+        where : {userId : req.params.id}})
     .then(function(user)
     {
         res.status(200).json(user);
