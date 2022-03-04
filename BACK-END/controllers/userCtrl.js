@@ -105,7 +105,6 @@ exports.login = function (req,res){
 
 exports.getUserProfil = function(req,res){
 
-    var headerAuth = req.headers['autorization'];
     var userId = token.decrypt(req);
 
     if (userId < 0) {
@@ -126,6 +125,31 @@ exports.getUserProfil = function(req,res){
 
 
 
+    exports.updateuUserProfil = function(req,res){
+    var userId = token.decrypt(req);
+    if (userId < 0) {
+        return res.status(400).json({'error' : 'wrong token'});
+    } 
+    const bio = req.body.bio
+    
+    models.User.findOne({
+        attributes : ['userId','bio'],
+        where: {userId : userId}
+    }).then(function(userFound){
+        if (userFound) {        
+            userFound.bio = bio;
+            userFound.save();
+            return res.status(200).json({'response' : 'bio validated update'})
+        }
+        else{
+            return res.status(404).json({'error' : 'user not found'});
+        }
+    }).catch(function(err){
+        res.status(500).json({'error':'server error' + err.message});
+    })
+    };
+
+
 
 
 
@@ -142,3 +166,16 @@ exports.getOneUser = function(req,res){
         res.status(500).json({'error' : 'server error'});
     })
 };
+
+
+exports.deleteAccount = function(req,res){
+    var userId = token.decrypt(req);
+    if (userId < 0) {
+        return res.status(400).json({'error' : 'wrong token'});
+    } 
+    models.User.destroy({where : {userId : userId }})
+    .then(function(deleteUser){
+        res.status(200).json({"response" : "Account has been deleted"})
+    })
+}
+

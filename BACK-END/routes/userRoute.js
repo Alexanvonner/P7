@@ -15,7 +15,13 @@ router.post('/signup',userController.signup);
 router.post("/login" , userController.login)
 // route getUserProfil
 router.get('/me', userController.getUserProfil);
+// route updateuUserProfil
+router.put('/me', userController.updateuUserProfil);
 // route getOneUser
 router.get('/user/:id', userController.getOneUser);
+// route deleteAccount
+router.delete('/me', userController.deleteAccount)
+
+
 // exportation du module
 module.exports = router;
