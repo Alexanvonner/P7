@@ -175,7 +175,14 @@ exports.deleteAccount = function(req,res){
     } 
     models.User.destroy({where : {userId : userId }})
     .then(function(deleteUser){
-        res.status(200).json({"response" : "Account has been deleted"})
+        if (deleteUser) {
+                return res.status(200).json({"response" : "Account has been deleted"})
+
+        }else{
+            return res.status(404).json({'error' : 'user not found'});
+        }
+    }).catch(function(err){
+        res.status(200).json({'error' : 'server error'})
     })
 }
 
