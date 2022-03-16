@@ -1,15 +1,15 @@
 const {connexion} = require('./database');
 const {Sequelize} = require('sequelize');
+const models = require('./user')
 
-const Message =  connexion.define('message',{
-     idUSERS: Sequelize.INTEGER(255),
-     title: Sequelize.STRING(255),
+const Message =  connexion.define('message',{     
      content: Sequelize.STRING(255),
      attachment: Sequelize.STRING(255),
      likes: Sequelize.INTEGER(255)
-},{tableName: 'Message',timestamps:false, underscored: false});
-
-User.sync({force : true})
+},{tableName: 'Message',timestamps:false, underscored: false });
+Message.belongsTo(models.User)
+// Message.sync({force : true})
   
+
 
  exports.Message = Message;

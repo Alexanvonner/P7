@@ -12,6 +12,7 @@ const User = connexion.define('user', {
   }, {tableName: 'Users',timestamps:false, underscored: false});
 
   //User.sync({force : true})
+
   
 
 exports.User = User;
