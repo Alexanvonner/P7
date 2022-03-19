@@ -5,10 +5,11 @@ const models = require('./user')
 const Message =  connexion.define('message',{     
      content: Sequelize.STRING(255),
      attachment: Sequelize.STRING(255),
-     likes: Sequelize.INTEGER(255)
+     likes: Sequelize.INTEGER(255),
+     userLiked : Sequelize.INTEGER(255)
 },{tableName: 'Message',timestamps:false, underscored: false });
 Message.belongsTo(models.User)
-// Message.sync({force : true})
+//Message.sync({force : true})
   
 
 
