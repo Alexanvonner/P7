@@ -203,27 +203,77 @@ exports.deleteAccount = function(req,res){
 
 
 
-
 exports.emailSend = function(req,res){
 let email = req.body.email;
-let token = randtoken.generate(20);
 models.User.findOne({where : {email : email}})
 .then(function(emailFound){
     if (emailFound) {
         // if user exist create link valid 15 minutes
+        const secret = `${process.env.SECRETE_KEY_JWT}` + emailFound.password;
+        const payload = {
+                            email : emailFound.email ,
+                            id : emailFound.userId,
+                        }
+        const token = jwt.sign(payload, secret,{expiresIn : '15m'});
+        const link = `http://localhost:3000/api/auth/reset-password/${emailFound.userId}/${token}`;
+        //send email function
+        function sendEmail(email, token) {
+            var email = email;
+            var token = token;
+            
+            var mail = nodemailer.createTransport({
+                service: 'gmail',
+                auth: 
+                {
+                    // !!!!!!!!!!!!!!!!     NE PAS OUBLIER DE METTRE DES VARIABLE D'ENV UNE FOIS EN PRODUCTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    user: "groupomania.reset@gmail.com", // Your email id
+                    pass:  "11021102Aa!"// Your password
+                }
+            });
+            var mailOptions = {
+                from: 'groupomania.reset@gmail.com',
+                to: email,
+                subject: 'Reset Password Link - Groupomania',
+                html: `<p>You requested for reset password, kindly use this <a href="http://localhost:3000/api/auth/reset-password/${emailFound.userId}/${token}">link</a> to reset your password</p>`
+            };
+            mail.sendMail(mailOptions, function(error, info) {
+                if (error) {
+                    console.log(1 + error.message)
+                } else {
+                    console.log(0)
+                }
+            });
+        }
         sendEmail(email,token)
         return res.status(200).json({result : "The reset password link has been sent to your email address"})
     } else {
         return res.status(400).json({result : "Email not found in DataBase"})
     }
 }).catch(function(err){
-    return res.status(500).json({error : "Server Error "})
+    return res.status(500).json({error : "Server Error " + err.message})
 })
 };
 
 
-exports.updatePassword = function(req,res){
+// exports.updatePassword = function(req,res){
 
+// };
+
+
+exports.getResetPassword = function(req,res){
+    const {id,token} = req.params;
+    models.User.findOne({where : {userId : id}})
+    .then(function(onSucces){
+        if (!onSucces) {
+            return res.status(400).json({error : "User ID do not exist in Database !"});
+        }else{
+            return res.status(200).json({result : "je suis ici"})
+        }
+    })
+    .catch(function(onFail){
+        return res.status(500).json({error : "Server Error"});
+    });
+    
 };
 
 
@@ -233,34 +283,3 @@ exports.updatePassword = function(req,res){
 
 
 
-
-//send email
-function sendEmail(email, token) {
- 
-    var email = email;
-    var token = token;
- 
-    var mail = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            // !!!!!!!!!!!!!!!!     NE PAS OUBLIER DE METTRE DES VARIABLE D'ENV UNE FOIS EN PRODUCTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            user: "groupomania.reset@gmail.com", // Your email id
-            pass:  "11021102Aa!"// Your password
-        }
-    });
-//  <p>You requested for reset password, kindly use this <a href="http://localhost:3000/api/reset-password?token=' + token + '">link</a> to reset your password</p>
-    var mailOptions = {
-        from: 'groupomania.reset@gmail.com',
-        to: email,
-        subject: 'Reset Password Link - Groupomania',
-        html: ' <p>You requested for reset password, kindly use this <a href="http://localhost:3000/api/reset-password?token=' + token + '">link</a> to reset your password</p>'
-    };
- 
-    mail.sendMail(mailOptions, function(error, info) {
-        if (error) {
-            console.log(1 + error.message)
-        } else {
-            console.log(0)
-        }
-    });
-}

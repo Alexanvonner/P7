@@ -27,7 +27,8 @@ router.delete('/me', userController.deleteAccount)
 
 // route password forgot / reset
 router.post('/reset-password',userController.emailSend);
-router.post('/update-password', userController.updatePassword);
+router.get('/reset-password/:id/:token', userController.getResetPassword);
+//router.post('/update-password', userController.updatePassword);
 
 // exportation du module
 module.exports = router;
