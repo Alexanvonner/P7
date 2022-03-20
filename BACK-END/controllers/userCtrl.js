@@ -254,7 +254,7 @@ models.User.findOne({where : {email : email}})
 })
 };
 
-
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // exports.updatePassword = function(req,res){
 
 // };
@@ -264,11 +264,13 @@ exports.getResetPassword = function(req,res){
     const {id,token} = req.params;
     models.User.findOne({where : {userId : id}})
     .then(function(onSucces){
-        if (!onSucces) {
-            return res.status(400).json({error : "User ID do not exist in Database !"});
-        }else{
+        if (onSucces) {     
+            const secret = `${process.env.SECRETE_KEY_JWT}` + onSucces.password;
+            const payload = jwt.verify(token,secret);
             return res.status(200).json({result : "je suis ici"})
-        }
+        }else{           
+             return res.status(400).json({error : "User ID do not exist in Database !"});
+            }
     })
     .catch(function(onFail){
         return res.status(500).json({error : "Server Error"});
@@ -277,8 +279,29 @@ exports.getResetPassword = function(req,res){
 };
 
 
-
-
+exports.createNewPassword = function(req,res){
+    const {id,token} = req.params;
+    models.User.findOne({where :{userId : id}})
+    .then(function(onSucces){
+        if (onSucces) {
+            const saltRounds = 10;
+            const myPlaintextPassword = req.body.password;
+            bcrypt.genSalt(saltRounds, function(err, salt) {
+                bcrypt.hash(myPlaintextPassword, salt, function(err, hash) {
+                    // Store hash in your password DB.
+                    onSucces.password = hash;
+                    onSucces.save();
+                });
+            });
+            
+            return res.status(200).json({result : "Password has been changed"}) 
+        }
+        
+    })
+    .catch(function(onFail){
+        return res.status(500).json({error : "Server error"})
+    });
+};
 
 
 

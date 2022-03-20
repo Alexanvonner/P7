@@ -9,7 +9,7 @@ const userController = require("../controllers/userCtrl");
 const jsonWebToken = require("../middleware/jwt");
 
 
-// la fonction Router()
+//  the function Router()
 const router = express.Router();
 
 // route signup
@@ -28,6 +28,7 @@ router.delete('/me', userController.deleteAccount)
 // route password forgot / reset
 router.post('/reset-password',userController.emailSend);
 router.get('/reset-password/:id/:token', userController.getResetPassword);
+router.post('/reset-password/:id/:token', userController.createNewPassword);
 //router.post('/update-password', userController.updatePassword);
 
 // exportation du module
