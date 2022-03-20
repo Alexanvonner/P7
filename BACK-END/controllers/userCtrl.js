@@ -6,6 +6,8 @@ const dotenv = require('dotenv');
 require('dotenv').config();
 // importation models de la bdd User.js
 const models = require("../models/user");
+const nodemailer = require('nodemailer');
+const randtoken = require('rand-token');
 
 
 
@@ -180,11 +182,85 @@ exports.deleteAccount = function(req,res){
                 return res.status(200).json({"response" : "Account has been deleted"})
 
         }else{
-            return res.status(404).json({'error' : 'user not found'});
+            return res.status(404).json({'error' : 'User not found'});
         }
     }).catch(function(err){
-        res.status(200).json({'error' : 'server error'})
+        res.status(200).json({'error' : 'Server Error'})
     })
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.emailSend = function(req,res){
+let email = req.body.email;
+let token = randtoken.generate(20);
+models.User.findOne({where : {email : email}})
+.then(function(emailFound){
+    if (emailFound) {
+        // if user exist create link valid 15 minutes
+        sendEmail(email,token)
+        return res.status(200).json({result : "The reset password link has been sent to your email address"})
+    } else {
+        return res.status(400).json({result : "Email not found in DataBase"})
+    }
+}).catch(function(err){
+    return res.status(500).json({error : "Server Error "})
+})
+};
+
+
+exports.updatePassword = function(req,res){
+
+};
+
+
+
+
+
+
+
+
+
+//send email
+function sendEmail(email, token) {
+ 
+    var email = email;
+    var token = token;
+ 
+    var mail = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            // !!!!!!!!!!!!!!!!     NE PAS OUBLIER DE METTRE DES VARIABLE D'ENV UNE FOIS EN PRODUCTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            user: "groupomania.reset@gmail.com", // Your email id
+            pass:  "11021102Aa!"// Your password
+        }
+    });
+//  <p>You requested for reset password, kindly use this <a href="http://localhost:3000/api/reset-password?token=' + token + '">link</a> to reset your password</p>
+    var mailOptions = {
+        from: 'groupomania.reset@gmail.com',
+        to: email,
+        subject: 'Reset Password Link - Groupomania',
+        html: ' <p>You requested for reset password, kindly use this <a href="http://localhost:3000/api/reset-password?token=' + token + '">link</a> to reset your password</p>'
+    };
+ 
+    mail.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.log(1 + error.message)
+        } else {
+            console.log(0)
+        }
+    });
+}
