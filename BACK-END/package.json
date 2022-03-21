@@ -29,7 +29,6 @@
     "nodemailer": "^6.7.2",
     "nodemon": "^2.0.15",
     "password-validator": "^5.2.1",
-    "rand-token": "^1.0.1",
     "sequelize": "^6.16.2",
     "sequelize-cli": "^6.4.1"
   }

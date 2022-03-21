@@ -7,7 +7,6 @@ require('dotenv').config();
 // importation models de la bdd User.js
 const models = require("../models/user");
 const nodemailer = require('nodemailer');
-const randtoken = require('rand-token');
 
 
 
@@ -81,7 +80,8 @@ exports.login = function (req,res){
     .then(function(userFound){
         if (userFound) {
             // Je compare le mdp saisie par celui dans la db
-            bcrypt.compare(password, userFound.password).then(function(result){
+            bcrypt.compare(password, userFound.password)
+            .then(function(result){
               // si le resultat de la comparaison est OK je retourne un token à l'user
               if (result) 
               {
@@ -94,10 +94,10 @@ exports.login = function (req,res){
                         {expiresIn : '12h'}
                     )
                   });
-              }  
+              }else{
+                return res.status(403).json({'error' : 'invalid password'});
+            } 
             })
-        }else{
-            return res.status(403).json({'error' : 'invalid password'});
         }
     }).catch(function(){
         return res.status(500).json({"error" : "unable to verify user"})
@@ -195,14 +195,6 @@ exports.deleteAccount = function(req,res){
 
 
 
-
-
-
-
-
-
-
-
 exports.emailSend = function(req,res){
 let email = req.body.email;
 models.User.findOne({where : {email : email}})
@@ -234,7 +226,10 @@ models.User.findOne({where : {email : email}})
                 from: 'groupomania.reset@gmail.com',
                 to: email,
                 subject: 'Reset Password Link - Groupomania',
-                html: `<p>You requested for reset password, kindly use this <a href="http://localhost:3000/api/auth/reset-password/${emailFound.userId}/${token}">link</a> to reset your password</p>`
+                html: `<img src="https://s3-eu-west-1.amazonaws.com/course.oc-static.com/projects/Digital+Project+Manager/Group+Project/Groupomania-reddit-FR/assets/icon-left-font.png" alt="logo groupomania">
+                <p style="font-size:1.3em;">Vous avez demandé la réinitialisation du mot de passe, veuillez utiliser ce  <a href="http://localhost:3000/api/auth/reset-password/${emailFound.userId}/${token}"><button style="color:red;font-weight:bold;">BOUTON</button></a> pour réinitialiser votre mot de passe</p>
+                <p style="font-size:1.6em;">ce lien est valable <strong style="color:red;">15 minutes</strong> </p>
+                `
             };
             mail.sendMail(mailOptions, function(error, info) {
                 if (error) {
@@ -254,28 +249,25 @@ models.User.findOne({where : {email : email}})
 })
 };
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// exports.updatePassword = function(req,res){
 
-// };
 
 
 exports.getResetPassword = function(req,res){
     const {id,token} = req.params;
     models.User.findOne({where : {userId : id}})
     .then(function(onSucces){
-        if (onSucces) {     
-            const secret = `${process.env.SECRETE_KEY_JWT}` + onSucces.password;
-            const payload = jwt.verify(token,secret);
-            return res.status(200).json({result : "je suis ici"})
-        }else{           
-             return res.status(400).json({error : "User ID do not exist in Database !"});
+        const secret = `${process.env.SECRETE_KEY_JWT}` + onSucces.password;
+        const payload = jwt.verify(token,secret);
+        if (payload) {
+            if (onSucces){     
+                return res.status(200).json({result : "User ID found in Database ! "});
+            }else{           
+                return res.status(400).json({error : "User ID do not exist in Database !"});
             }
-    })
-    .catch(function(onFail){
-        return res.status(500).json({error : "Server Error"});
+        }
+    }).catch(function(onFail){
+        return res.status(500).json({error :`Server error OR expired token ==> ${onFail.message}`});
     });
-    
 };
 
 

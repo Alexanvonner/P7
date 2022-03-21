@@ -105,24 +105,22 @@ exports.deleteComment = function(req,res){
 
 
 
-
-
-
-
 exports.deletePost = function(req,res){
     const userId = token.decrypt(req);
     models.Message.findOne({where : {id : req.params.id}})
     .then(function(postFound){
         console.log(postFound);
         if (userId == postFound.userUserId) {
-            modelsComment.Comment.findAll({where : {messageId : req.params.id}})
-            .then(function(commentFound){
-                if (commentFound == req.params.id) {
-                    commentFound.destroy();
-                }
-            }).catch(function(err){
-                return res.status(500).json({error : "server error"});
-            })
+            modelsComment.Comment.destroy({where :{messageId : req.params.id}})
+
+            // modelsComment.Comment.findAll({where : {messageId : req.params.id}})
+            // .then(function(commentFound){
+            //     if (commentFound == req.params.id) {
+            //         commentFound.destroy();
+            //     }
+            // }).catch(function(err){
+            //     return res.status(500).json({error : "server error"});
+            // })
             postFound.destroy();
             return res.status(200).json({result : "Post Has Been Deleted"})
         }else{
