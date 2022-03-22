@@ -3,8 +3,8 @@ const {Sequelize} = require('sequelize');
 const models = require('./user')
 
 const Message =  connexion.define('message',{     
-     content: Sequelize.STRING(255),
-     attachment: Sequelize.STRING(255),
+     content:Sequelize.STRING(255),
+     attachment: {type : Sequelize.STRING(255), required: false},
      likes: Sequelize.INTEGER(255),
      userLiked : Sequelize.INTEGER(255)
 },{tableName: 'Message',timestamps:false, underscored: false });

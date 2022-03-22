@@ -1,6 +1,6 @@
 const models = require("../models/message");
 const modelsComment = require("../models/comment");
-
+const modelsUser = require("../models/user");
 const token = require('../middleware/jwt');
 
 
@@ -17,7 +17,7 @@ exports.createPost = function (req, res) {
 
     models.Message.create({
         content:  content,
-        attachment: attachment, 
+        attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`, 
         likes: 0,
         userUserId : userId
 
@@ -74,14 +74,29 @@ exports.GetOnePost = function(req,res){
 
 
 exports.getAllPost = function(req,res){
-    models.Message.findAll({attributes : ["content","attachment","userUserId"]}).then(function(postFound){
+    models.Message.findAll(
+        {attributes : ["content","attachment","userUserId","id"],
+            include: 
+            [
+              { model: modelsUser.User,
+                attributes : ["userId","username","email","isAdmin"]
+              },
+              {
+                model: modelsComment.Comment,
+                attributes : ["comment","id","userId","messageId"]
+              }
+
+            ]
+           
+
+}).then(function(postFound){
         if (postFound) {
             return res.status(200).json(postFound);
         }else{
             return res.status(400).json({error : "no posts found"});
         }
     }).catch(function(err){
-        return res.status(500).json({error : "server error"})
+        return res.status(500).json({error : "server error" + err})
     });
 };
 

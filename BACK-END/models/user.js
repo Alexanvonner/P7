@@ -8,7 +8,7 @@ const User = connexion.define('user', {
     username: Sequelize.STRING(255),
     password: Sequelize.STRING(255),
     bio: {type : Sequelize.STRING(255), allowNull: true},
-    isAdmin: Sequelize.BOOLEAN
+    isAdmin: Sequelize.INTEGER
   }, {tableName: 'Users',timestamps:false, underscored: false});
 
   //User.sync({force : true})
