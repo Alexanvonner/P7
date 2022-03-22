@@ -66,17 +66,15 @@ exports.signup = function (req, res) {
 };
     
 exports.login = function (req,res){
-    // Params
     const email = req.body.email;
     const password = req.body.password;
     
-    if (email == null  || password == null) {
+    if (email == null  || password == null) 
+    {
         return res.status(400).json({'error' : 'missing parameters'});
     }
     
-    models.User.findOne({
-        where: { email: email },
-    })
+    models.User.findOne({ where: { email: email },})
     .then(function(userFound){
         if (userFound) {
             // Je compare le mdp saisie par celui dans la db
@@ -94,10 +92,12 @@ exports.login = function (req,res){
                         {expiresIn : '12h'}
                     )
                   });
-              }else{
-                return res.status(403).json({'error' : 'invalid password'});
-            } 
+               }else{
+                        return res.status(403).json({'error' : 'invalid password'});
+                    } 
             })
+        }else{
+            return res.status(400).json({'error' : 'Email not found in database !'});
         }
     }).catch(function(){
         return res.status(500).json({"error" : "unable to verify user"})
@@ -201,7 +201,7 @@ models.User.findOne({where : {email : email}})
 .then(function(emailFound){
     if (emailFound) {
         // if user exist create link valid 15 minutes
-        const secret = `${process.env.SECRETE_KEY_JWT}` + emailFound.password;
+        const secret = `${process.env.SECRETE_KEY_JWT}`;
         const payload = {
                             email : emailFound.email ,
                             id : emailFound.userId,
@@ -256,15 +256,14 @@ exports.getResetPassword = function(req,res){
     const {id,token} = req.params;
     models.User.findOne({where : {userId : id}})
     .then(function(onSucces){
-        const secret = `${process.env.SECRETE_KEY_JWT}` + onSucces.password;
+        const secret = `${process.env.SECRETE_KEY_JWT}`;
         const payload = jwt.verify(token,secret);
-        if (payload) {
             if (onSucces){     
                 return res.status(200).json({result : "User ID found in Database ! "});
             }else{           
                 return res.status(400).json({error : "User ID do not exist in Database !"});
             }
-        }
+        
     }).catch(function(onFail){
         return res.status(500).json({error :`Server error OR expired token ==> ${onFail.message}`});
     });
@@ -294,7 +293,6 @@ exports.createNewPassword = function(req,res){
         return res.status(500).json({error : "Server error"})
     });
 };
-
 
 
 

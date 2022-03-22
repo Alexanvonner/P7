@@ -74,7 +74,7 @@ exports.GetOnePost = function(req,res){
 
 
 exports.getAllPost = function(req,res){
-    models.Message.findAll().then(function(postFound){
+    models.Message.findAll({attributes : ["content","attachment","userUserId"]}).then(function(postFound){
         if (postFound) {
             return res.status(200).json(postFound);
         }else{
@@ -87,9 +87,11 @@ exports.getAllPost = function(req,res){
 
 
 exports.addComment = function(req,res){
+    const userId = token.decrypt(req);
     modelsComment.Comment.create({
         comment : req.body.comment,
-        messageId : req.params.id
+        messageId : req.params.id,
+        userId : userId 
     }).then(function(comment){
         return res.status(200).json({result : "Comment created successfully !"})
     }).catch(function(err){
@@ -112,15 +114,6 @@ exports.deletePost = function(req,res){
         console.log(postFound);
         if (userId == postFound.userUserId) {
             modelsComment.Comment.destroy({where :{messageId : req.params.id}})
-
-            // modelsComment.Comment.findAll({where : {messageId : req.params.id}})
-            // .then(function(commentFound){
-            //     if (commentFound == req.params.id) {
-            //         commentFound.destroy();
-            //     }
-            // }).catch(function(err){
-            //     return res.status(500).json({error : "server error"});
-            // })
             postFound.destroy();
             return res.status(200).json({result : "Post Has Been Deleted"})
         }else{
