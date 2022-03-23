@@ -127,30 +127,34 @@ exports.getUserProfil = function(req,res){
 
 
 
-    exports.updateuUserProfil = function(req,res){
+exports.updateUserProfil = function(req,res){
         var userId = token.decrypt(req);
-        console.log(req.body.bio);
-        if (userId < 0) 
-        {
-            return res.status(400).json({'error' : 'wrong token'});
-        } 
+        console.log(req.file); 
         models.User.findOne({where : {userId : userId}})
         .then((userFound) => {
                 if (userFound) 
                 {
-                    userFound.bio = req.body.bio;                   
-                    userFound.save();
-                    return res.status(200).json({ 'response': 'bio validated update' + userFound});
+                    if (req.body.bio) {
+                        userFound.bio = req.body.bio;
+                        userFound.save(); 
+                        return res.status(200).json({ result: 'bio validated update' + userFound}); 
+                    }
+                    if (req.file) {
+                        userFound.profilPicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;              
+                       userFound.save(); 
+                       return res.status(200).json({ result: 'photo add' + userFound}); 
+                    }
+                          
                 }
                 else 
-                {
-                    return res.status(404).json({ 'error': 'user not found' });
-                }
-            }).catch(function(err)
-            {
+                    {
+                        return res.status(404).json({ 'error': 'User not found' });
+                    }
+        }).catch(function(err)
+             {
                  res.status(500).json({'error':'server error' + err.message});
              })
-    };
+};
 
 
 

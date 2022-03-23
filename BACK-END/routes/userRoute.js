@@ -6,8 +6,8 @@ const middlewarePassword = require("../middleware/password");
 //import controllers/user.js
 const userController = require("../controllers/userCtrl");
 //import middleWare/jwt.js
-const jsonWebToken = require("../middleware/jwt");
-
+const auth = require("../middleware/jwt");
+const multer = require("../middleware/multer-config");
 
 //  the function Router()
 const router = express.Router();
@@ -17,9 +17,9 @@ router.post('/signup',userController.signup);
 // route login
 router.post("/login", userController.login)
 // route getUserProfil
-router.get('/me',  userController.getUserProfil);
+router.get('/me',auth,userController.getUserProfil);
 // route updateuUserProfil
-router.put('/me', userController.updateuUserProfil);
+router.patch('/me',auth,multer, userController.updateUserProfil);
 // route getOneUser
 router.get('/user/:id', userController.getOneUser);
 // route deleteAccount
