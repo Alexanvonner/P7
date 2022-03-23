@@ -131,7 +131,15 @@ exports.addComment = function(req,res){
 
 
 exports.deleteComment = function(req,res){
-    modelsComment.Comment.findOne({})
+    const userId = token.decrypt(req);
+    modelsComment.Comment.destroy({where : {userId : userId,id : req.params.id}})
+    .then(function(onSucces){
+        return res.status(200).json({result : 'comment'+req.params.id+' deleted'})
+    })
+    .catch(function(onFail){
+        return res.status(500).json({result : 'server error'});
+
+    });
 };
 
 
@@ -157,20 +165,44 @@ exports.deletePost = function(req,res){
 
 exports.likes = function(req,res){
     const userId = token.decrypt(req);
+    // je verifie si req.params.id et possede bien un post du meme ID
     models.Message.findOne({where : {id : req.params.id}})
     .then(function(onSucces){
+        // si il y a un post 
         if (onSucces) {
-            if (req.body.like) {
+
+                // je verifie si l'user ne le pas deja liké
                 modelsLike.Like.findOne({where : {messageId : req.params.id,userLiked : userId}})
-                .then(function(onSucces){
-                    if (onSucces) {
+                .then(function(found){
+                    console.log(found);
+                    // si il la déja liké je retourne un status 400  "vous avez déja liké"
+                    if (found) 
+                    {  
                         return res.status(400).json({error : "vous avez déja liké"}); 
-                    }  
-                })
-                .catch(function(onFail){
+                    }
+             // si la req.body.like == 1 alors j'incremente et j'ajoute l'user dans userliked et je place req.params.id dans messageId
+                        if (req.body.like == 1) 
+                        {
+                            modelsLike.Like.create({
+                                userLiked: userId,
+                                like : 1,
+                                messageId : req.params.id
+                            })
+                            
+                             return res.status(200).json({result : "LIKE +1"})
+                        
+
+                        } // si la req.body.like == 0 alors je decremente et je delete l'user ect
+                         if(req.body.like == 0) 
+                        {  
+                            return res.status(200).json({result : "LIKE = 0"})
+                        }
+                    
+                }).catch(function(onFail){
                     return res.status(500).json({error : " server error !" + onFail});
+                   
                 });
-            }
+            
 
         }
     })
