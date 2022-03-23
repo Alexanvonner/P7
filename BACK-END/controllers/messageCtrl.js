@@ -1,6 +1,8 @@
 const models = require("../models/message");
 const modelsComment = require("../models/comment");
 const modelsUser = require("../models/user");
+const modelsLike = require("../models/like");
+
 const token = require('../middleware/jwt');
 const fs = require('file-system');
 
@@ -39,19 +41,15 @@ exports.UpdatePost = function(req,res){
             .then(function(onSucces){
                 if (onSucces)
                 {   
-                    
                         const filename = onSucces.attachment.split("/images/")[1];
                         console.log(filename);
                         fs.unlink("./images/"+filename,(err) => {
                         if (err) throw err;
                         console.log('Fichier supprimé !');
                         });
-                    
-                    
-                    
-                    onSucces.attachment = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`; 
-                    onSucces.save();
-                    return res.status(200).json({resultat : "Updated Attachment !"});
+                        onSucces.attachment = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`; 
+                        onSucces.save();
+                        return res.status(200).json({resultat : "Updated Attachment !"});
                 }else
                 {
                         // dans le cas contraire je suis recalé a la modification du post 
@@ -157,17 +155,35 @@ exports.deletePost = function(req,res){
 
 
 
-// exports.likes = function(req,res){
-//     const userId = token.decrypt(req);
-//     models.Message.findOne({where : {userUserId : req.params.id}})
-//     .then(function(postFound){
-//         if (req.body.likes = 1) {
-//             postFound.likes++
-//             postFound.userLiked = userId;
-//             postFound.save();
-//             return res.status(200).json({result : "Post Liked +1"});
-//         }
-//     }).catch(function(err){
-//         return res.status(500).json({error : " server error"});
-//     })
-// };
+exports.likes = function(req,res){
+    const userId = token.decrypt(req);
+    models.Message.findOne({where : {id : req.params.id}})
+    .then(function(onSucces){
+        if (onSucces) {
+            if (req.body.like) {
+                modelsLike.Like.findOne({where : {messageId : req.params.id,userLiked : userId}})
+                .then(function(onSucces){
+                    if (onSucces) {
+                        return res.status(400).json({error : "vous avez déja liké"}); 
+                    }  
+                })
+                .catch(function(onFail){
+                    return res.status(500).json({error : " server error !" + onFail});
+                });
+            }
+
+        }
+    })
+    .catch(function(onFail){
+        return res.status(500).json({error : " server error"});
+
+    });
+};
+
+
+
+            
+
+
+    
+  

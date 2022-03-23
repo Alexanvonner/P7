@@ -4,9 +4,7 @@ const models = require('./user')
 
 const Message =  connexion.define('message',{     
      content:Sequelize.STRING(255),
-     attachment: {type : Sequelize.STRING(255), required: false},
-     likes: Sequelize.INTEGER(255),
-     userLiked : Sequelize.INTEGER(255)
+     attachment: {type : Sequelize.STRING(255), required: false}
 },{tableName: 'Message',timestamps:false, underscored: false });
 Message.belongsTo(models.User)
 //Message.sync({force : true})
