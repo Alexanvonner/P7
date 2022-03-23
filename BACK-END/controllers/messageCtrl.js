@@ -2,6 +2,7 @@ const models = require("../models/message");
 const modelsComment = require("../models/comment");
 const modelsUser = require("../models/user");
 const token = require('../middleware/jwt');
+const fs = require('file-system');
 
 
 
@@ -28,30 +29,53 @@ exports.createPost = function (req, res) {
     });
 
 
-}
+};
 
 exports.UpdatePost = function(req,res){
     const userId = token.decrypt(req);
-    models.Message.findOne({where : {userUserId  : userId}})
-    .then(function(userFound){
-        if (userFound){
-            userFound.content = req.body.content;
-            userFound.attachment = req.body.attachment;
-            userFound.save();
-            return res.status(200).json({resultat : "Post updated"})
-        }else{
-            return res.status(400).json({error : "User not Found"});       
+
+        if (req.file) {
+            models.Message.findOne({where : {userUserId  : userId}})
+            .then(function(onSucces){
+                if (onSucces)
+                {   
+                    
+                        const filename = onSucces.attachment.split("/images/")[1];
+                        console.log(filename);
+                        fs.unlink("./images/"+filename,(err) => {
+                        if (err) throw err;
+                        console.log('Fichier supprimé !');
+                        });
+                    
+                    
+                    
+                    onSucces.attachment = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`; 
+                    onSucces.save();
+                    return res.status(200).json({resultat : "Updated Attachment !"});
+                }else
+                {
+                        // dans le cas contraire je suis recalé a la modification du post 
+                        return res.status(400).json({error : "You do not have the required permissions"});       
+                }
+            }).catch(function(onFail)
+            {
+                return res.status(500).json({error : "server error" + onFail});
+            })
         }
-        
-    }).catch(function(err){
-        return res.status(500).json({error : "server error"});
-    })
-}
+        if (req.body.content){
+            models.Message.findOne({where : {userUserId  : userId}})
+            .then(function(onSucces){
+                 onSucces.content = req.body.content;
+                onSucces.save();
+                return res.status(200).json({resultat : "Updated Content !"});
+            })
+            .catch(function(onFail){
+                return res.status(500).json({error : "server error" + onFail});
 
-
-
-
-
+            });
+           
+        };   
+};
 
 exports.GetOnePost = function(req,res){
     models.Message.findOne({where : {id : req.params.id}})
@@ -65,13 +89,6 @@ exports.GetOnePost = function(req,res){
         res.status(500).json({error : "server error"});
     })
 };
-
-
-
-
-
-
-
 
 exports.getAllPost = function(req,res){
     models.Message.findAll(
@@ -117,9 +134,7 @@ exports.addComment = function(req,res){
 
 exports.deleteComment = function(req,res){
     modelsComment.Comment.findOne({})
-}
-
-
+};
 
 
 exports.deletePost = function(req,res){

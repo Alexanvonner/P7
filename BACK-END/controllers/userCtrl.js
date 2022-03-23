@@ -33,7 +33,6 @@ exports.signup = function (req, res) {
     if (!email_regex.test(email)) {
         return res.status(400).json({ 'error': 'invalid e-mail' });
     }
-    
 
     models.User.findOne({
         attributes: ["email"],
@@ -64,7 +63,7 @@ exports.signup = function (req, res) {
         return res.status(500).json({ 'error': 'unable to verify user'});
     });
 };
-    
+
 exports.login = function (req,res){
     const email = req.body.email;
     const password = req.body.password;
@@ -102,18 +101,16 @@ exports.login = function (req,res){
     }).catch(function(){
         return res.status(500).json({"error" : "unable to verify user"})
     })
-    
-    };
+};
 
 exports.getUserProfil = function(req,res){
-
     var userId = token.decrypt(req);
 
     if (userId < 0) {
         return res.status(400).json({'error' : 'wrong token'});
     } 
     models.User.findOne({
-        attributes: ["userId","email","username","bio"],
+        attributes: ["userId","email","username","bio","profilPicture"],
         where : {userId : userId}})
         .then(function(user)
         {
@@ -123,9 +120,7 @@ exports.getUserProfil = function(req,res){
         {
             res.status(500).json({'error' : 'server error'});
         })
-    };
-
-
+};
 
 exports.updateUserProfil = function(req,res){
         var userId = token.decrypt(req);
@@ -137,12 +132,12 @@ exports.updateUserProfil = function(req,res){
                     if (req.body.bio) {
                         userFound.bio = req.body.bio;
                         userFound.save(); 
-                        return res.status(200).json({ result: 'bio validated update' + userFound}); 
+                        return res.status(200).json({ result: 'Biography Updated !'}); 
                     }
                     if (req.file) {
                         userFound.profilPicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;              
                        userFound.save(); 
-                       return res.status(200).json({ result: 'photo add' + userFound}); 
+                       return res.status(200).json({ result: 'Profil picture Updated!' }); 
                     }
                           
                 }
@@ -155,10 +150,6 @@ exports.updateUserProfil = function(req,res){
                  res.status(500).json({'error':'server error' + err.message});
              })
 };
-
-
-
-
 
 exports.getOneUser = function(req,res){
     models.User.findOne({
@@ -174,7 +165,7 @@ exports.getOneUser = function(req,res){
     })
 };
 
-
+// AJOUTER LA SUPPRESSION DE TOUT LES POST LIKE COMMENTAIRE ECT SI L'USER DELETE SONT ACCOUNT
 exports.deleteAccount = function(req,res){
     var userId = token.decrypt(req);
     if (userId < 0) {
@@ -191,13 +182,7 @@ exports.deleteAccount = function(req,res){
     }).catch(function(err){
         res.status(200).json({'error' : 'Server Error'})
     })
-}
-
-
-
-
-
-
+};
 
 exports.emailSend = function(req,res){
 let email = req.body.email;
@@ -252,9 +237,6 @@ models.User.findOne({where : {email : email}})
     return res.status(500).json({error : "Server Error " + err.message})
 })
 };
-
-
-
 
 exports.getResetPassword = function(req,res){
     const {id,token} = req.params;
