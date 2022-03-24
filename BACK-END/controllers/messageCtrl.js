@@ -7,10 +7,6 @@ const token = require('../middleware/jwt');
 const fs = require('file-system');
 
 
-
-
-
-
 exports.createPost = function (req, res) {
     
     const content = req.body.content;
@@ -52,7 +48,6 @@ exports.UpdatePost = function(req,res){
                         return res.status(200).json({resultat : "Updated Attachment !"});
                 }else
                 {
-                        // dans le cas contraire je suis recalé a la modification du post 
                         return res.status(400).json({error : "You do not have the required permissions"});       
                 }
             }).catch(function(onFail)
@@ -134,7 +129,7 @@ exports.deleteComment = function(req,res){
     const userId = token.decrypt(req);
     modelsComment.Comment.destroy({where : {userId : userId,id : req.params.id}})
     .then(function(onSucces){
-        return res.status(200).json({result : 'comment'+req.params.id+' deleted'})
+        return res.status(200).json({result : 'comment deleted'})
     })
     .catch(function(onFail){
         return res.status(500).json({result : 'server error'});
@@ -165,19 +160,23 @@ exports.deletePost = function(req,res){
 
 exports.likes = function(req,res){
     const userId = token.decrypt(req);
-    // je verifie si req.params.id et possede bien un post du meme ID
+    // je verifie si req.params.id  possede bien un post du meme ID
     models.Message.findOne({where : {id : req.params.id}})
     .then(function(onSucces){
         // si il y a un post 
         if (onSucces) {
 
                 // je verifie si l'user ne le pas deja liké
-                modelsLike.Like.findOne({where : {messageId : req.params.id,userLiked : userId}})
+                modelsLike.Like.findOne({where : {userLiked : userId,messageId : req.params.id}})
                 .then(function(found){
-                    console.log(found);
                     // si il la déja liké je retourne un status 400  "vous avez déja liké"
                     if (found) 
                     {  
+                        if(req.body.like === 0) 
+                        {  
+                            return res.status(200).json({result : "LIKE 0"})
+                        }
+
                         return res.status(400).json({error : "vous avez déja liké"}); 
                     }
              // si la req.body.like == 1 alors j'incremente et j'ajoute l'user dans userliked et je place req.params.id dans messageId
@@ -193,10 +192,7 @@ exports.likes = function(req,res){
                         
 
                         } // si la req.body.like == 0 alors je decremente et je delete l'user ect
-                         if(req.body.like == 0) 
-                        {  
-                            return res.status(200).json({result : "LIKE = 0"})
-                        }
+                        
                     
                 }).catch(function(onFail){
                     return res.status(500).json({error : " server error !" + onFail});
