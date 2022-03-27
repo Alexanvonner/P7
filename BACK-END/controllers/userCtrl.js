@@ -4,9 +4,16 @@ jwt = require('jsonwebtoken');
 const token = require('../middleware/jwt');
 const dotenv = require('dotenv');
 require('dotenv').config();
-// importation models de la bdd User.js
-const models = require("../models/user");
 const nodemailer = require('nodemailer');
+const fs = require('file-system');
+
+// Import MODELS
+const models = require("../models/user");
+const modelsMessage = require("../models/message");
+const modelsComment = require("../models/comment");
+const modelsLike = require("../models/like");
+
+
 
 
 
@@ -122,6 +129,8 @@ exports.getUserProfil = function(req,res){
         })
 };
 
+
+// AJOUTER LE SUPPRESSION DE L'ANCIENNE PHOTO AU UPDATE
 exports.updateUserProfil = function(req,res){
         var userId = token.decrypt(req);
         console.log(req.file); 
@@ -135,9 +144,16 @@ exports.updateUserProfil = function(req,res){
                         return res.status(200).json({ result: 'Biography Updated !'}); 
                     }
                     if (req.file) {
+                        if (userFound.profilPicture !== null) {
+                            const filename = userFound.profilPicture.split("/images/")[1];
+                            fs.unlink("./images/"+filename,(err) => {
+                            if (err) throw err;
+                            console.log('Fichier supprimé !');
+                            });
+                        }
                         userFound.profilPicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;              
-                       userFound.save(); 
-                       return res.status(200).json({ result: 'Profil picture Updated!' }); 
+                        userFound.save(); 
+                        return res.status(200).json({ result: 'Profil picture Updated!' }); 
                     }
                           
                 }
@@ -166,21 +182,30 @@ exports.getOneUser = function(req,res){
 };
 
 // AJOUTER LA SUPPRESSION DE TOUT LES POST LIKE COMMENTAIRE ECT SI L'USER DELETE SONT ACCOUNT
+// ++ supprime photo profil user
 exports.deleteAccount = function(req,res){
     var userId = token.decrypt(req);
-    if (userId < 0) {
-        return res.status(400).json({'error' : 'wrong token'});
-    } 
     models.User.destroy({where : {userId : userId }})
     .then(function(deleteUser){
         if (deleteUser) {
+            if (deleteUser.profilPicture !== null) {
+                const filename = deleteUser.profilPicture.split("/images/")[1];
+                fs.unlink("./images/"+filename,(err) => {
+                if (err) throw err;
+                console.log('Fichier supprimé !');
+                });
+            }
+                // search  a Message / Comment / Like belonging to the user
+                modelsMessage.Message.destroy({where : {userUserId : userId}})
+                modelsComment.Comment.destroy({where : {userId : userId}});
+                modelsLike.Like.destroy({where : {userLiked : userId}});
                 return res.status(200).json({"response" : "Account has been deleted"})
 
         }else{
             return res.status(404).json({'error' : 'User not found'});
         }
     }).catch(function(err){
-        res.status(200).json({'error' : 'Server Error'})
+        res.status(500).json({'error' : 'Server Error' + err.message})
     })
 };
 

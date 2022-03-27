@@ -127,7 +127,7 @@ exports.addComment = function(req,res){
 
 exports.deleteComment = function(req,res){
     const userId = token.decrypt(req);
-    modelsComment.Comment.destroy({where : {userId : userId,id : req.params.id}})
+    modelsComment.Comment.destroy({where : {userId : userId , id : req.params.id}})
     .then(function(onSucces){
         return res.status(200).json({result : 'comment deleted'})
     })
@@ -137,7 +137,7 @@ exports.deleteComment = function(req,res){
     });
 };
 
-
+// AJOUTER LA SUPPRESSION DE TOUT LES LIKE ET COMMENT DU POST
 exports.deletePost = function(req,res){
     const userId = token.decrypt(req);
     models.Message.findOne({where : {id : req.params.id}})
@@ -173,14 +173,15 @@ exports.likes = function(req,res){
                     if (found) 
                     {  
                         if(req.body.like === 0) 
-                        {  
+                        {   
+                            found.destroy();
                             return res.status(200).json({result : "LIKE 0"})
                         }
 
                         return res.status(400).json({error : "vous avez déja liké"}); 
                     }
              // si la req.body.like == 1 alors j'incremente et j'ajoute l'user dans userliked et je place req.params.id dans messageId
-                        if (req.body.like == 1) 
+                        if (req.body.like === 1) 
                         {
                             modelsLike.Like.create({
                                 userLiked: userId,
@@ -189,17 +190,13 @@ exports.likes = function(req,res){
                             })
                             
                              return res.status(200).json({result : "LIKE +1"})
-                        
-
                         } // si la req.body.like == 0 alors je decremente et je delete l'user ect
                         
                     
                 }).catch(function(onFail){
                     return res.status(500).json({error : " server error !" + onFail});
                    
-                });
-            
-
+                }); 
         }
     })
     .catch(function(onFail){

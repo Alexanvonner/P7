@@ -18,6 +18,6 @@ router.post('/post/:id/likes', userController.likes);
 router.delete('/post/:id',userController.deletePost);
 router.get('/post', userController.getAllPost);
 router.post('/post/:id',userController.addComment);
-router.delete('/comment/:id/',userController.deleteComment);
+router.delete('/post/comment/:id/',userController.deleteComment);
 // export  module
 module.exports = router;
