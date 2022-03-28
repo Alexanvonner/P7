@@ -1,6 +1,7 @@
 const {connexion} = require('./database');
 const {Sequelize} = require('sequelize');
-const models = require('./message')
+const models = require('./message');
+
 
 const Comment =  connexion.define('comment',{     
      comment: Sequelize.STRING(255),

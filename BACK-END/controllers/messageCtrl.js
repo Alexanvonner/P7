@@ -179,6 +179,8 @@ exports.likes = function(req,res){
                         if(req.body.like === 0) 
                         {   
                             found.destroy();
+                            onSucces.like--
+                            onSucces.save();
                             return res.status(200).json({result : "LIKE 0"})
                         }
 
@@ -189,9 +191,10 @@ exports.likes = function(req,res){
                         {
                             modelsLike.Like.create({
                                 userLiked: userId,
-                                like : 1,
                                 messageId : req.params.id
                             })
+                            onSucces.like++
+                            onSucces.save();
                             
                              return res.status(200).json({result : "LIKE +1"})
                         } // si la req.body.like == 0 alors je decremente et je delete l'user ect
