@@ -5,7 +5,7 @@ const token = require('../middleware/jwt');
 const dotenv = require('dotenv');
 require('dotenv').config();
 const nodemailer = require('nodemailer');
-const fs = require('file-system');
+var fs = require('file-system');
 
 // Import MODELS
 const models = require("../models/user");
@@ -128,9 +128,7 @@ exports.getUserProfil = function(req,res){
             res.status(500).json({'error' : 'server error'});
         })
 };
-
-
-// AJOUTER LE SUPPRESSION DE L'ANCIENNE PHOTO AU UPDATE
+// verifier si elle work bien cette fonction
 exports.updateUserProfil = function(req,res){
         var userId = token.decrypt(req);
         console.log(req.file); 
@@ -185,16 +183,21 @@ exports.getOneUser = function(req,res){
 // ++ supprime photo profil user
 exports.deleteAccount = function(req,res){
     var userId = token.decrypt(req);
-    models.User.destroy({where : {userId : userId }})
+    models.User.findOne({where : {userId : userId }})
     .then(function(deleteUser){
         if (deleteUser) {
-            if (deleteUser.profilPicture !== null) {
+            if (deleteUser.profilPicture !== null || deleteUser.profilPicture !== undefined) {
+                console.log("log de profilPicture");
+                console.log(deleteUser.profilPicture);
                 const filename = deleteUser.profilPicture.split("/images/")[1];
                 fs.unlink("./images/"+filename,(err) => {
                 if (err) throw err;
                 console.log('Fichier supprimé !');
                 });
             }
+            console.log("log de profilpicture");
+                console.log(deleteUser.profilPicture);
+                models.User.destroy({where :{userId : userId}});
                 // search  a Message / Comment / Like belonging to the user
                 modelsMessage.Message.destroy({where : {userUserId : userId}})
                 modelsComment.Comment.destroy({where : {userId : userId}});

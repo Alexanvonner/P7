@@ -129,7 +129,11 @@ exports.deleteComment = function(req,res){
     const userId = token.decrypt(req);
     modelsComment.Comment.destroy({where : {userId : userId , id : req.params.id}})
     .then(function(onSucces){
-        return res.status(200).json({result : 'comment deleted'})
+        if (onSucces) {
+            return res.status(200).json({result : 'comment deleted'})
+        }else{
+            return res.status(400).json({error : "comment not found"})
+        }
     })
     .catch(function(onFail){
         return res.status(500).json({result : 'server error'});
