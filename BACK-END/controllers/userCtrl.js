@@ -21,8 +21,6 @@ const modelsLike = require("../models/like");
 // regex 
 const email_regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-
-// ROUTES
 exports.signup = function (req, res) {
     // Params 
    
@@ -128,7 +126,7 @@ exports.getUserProfil = function(req,res){
             res.status(500).json({'error' : 'server error'});
         })
 };
-// verifier si elle work bien cette fonction
+
 exports.updateUserProfil = function(req,res){
         var userId = token.decrypt(req);
         console.log(req.file); 

@@ -10,7 +10,7 @@ const User = connexion.define('user', {
     bio: {type : Sequelize.STRING(255), allowNull: true},
     isAdmin: Sequelize.INTEGER,
     profilPicture : {type : Sequelize.STRING(255), allowNull:true}
-  }, {tableName: 'Users',timestamps:false, underscored: false});
+  }, {tableName: 'User',timestamps:false, underscored: false});
 
   //User.sync({force : true})
 

@@ -10,14 +10,20 @@ const multer =  require('../middleware/multer-config');
 // la fonction Router()
 const router = express.Router();
 
-// mise en place du CRUD pour les MESSAGES
+// MESSAGES
 router.post('/post',auth,multer,userController.createPost);
 router.patch('/post/:id',auth,multer,userController.UpdatePost);
-router.get('/post/:id',userController.GetOnePost);
-router.post('/post/:id/likes', userController.likes);
 router.delete('/post/:id',userController.deletePost);
 router.get('/post', userController.getAllPost);
+
+// COMMENT
 router.post('/post/:id',userController.addComment);
+router.get('/post/comment/:id', userController.getAllComment);
 router.delete('/post/comment/:id/',userController.deleteComment);
+
+// LIKE 
+router.post('/post/:id/likes', userController.likes);
+
+
 // export  module
 module.exports = router;

@@ -17,13 +17,13 @@ exports.createPost = function (req, res) {
     models.Message.create({
         content:  content,
         attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`, 
-        likes: 0,
+        like: 0,
         userUserId : userId
 
     }).then(function (message) {
         return res.status(200).json({ 'result': 'post create' });
     }).catch(function (err) {
-        return res.status(500).json({ "error": "server error"});
+        return res.status(500).json({ "error": "server error"+ err});
     });
 
 
@@ -70,18 +70,6 @@ exports.UpdatePost = function(req,res){
         };   
 };
 
-exports.GetOnePost = function(req,res){
-    models.Message.findOne({where : {id : req.params.id}})
-    .then(function(postFound){
-        if (!postFound) {
-            return res.status(400).json({error : "post not found"});
-        }else{
-            return res.status(200).json({result : postFound});
-        }
-    }).catch(function(err){
-        res.status(500).json({error : "server error"});
-    })
-};
 
 exports.getAllPost = function(req,res){
     models.Message.findAll(
@@ -91,17 +79,10 @@ exports.getAllPost = function(req,res){
               { model: modelsUser.User,
                 attributes : ["userId","username","email","isAdmin"]
               },
-              {
-                model: modelsComment.Comment,
-                attributes : ["comment","id","userId","messageId"]
-              }
-
             ]
-           
-
-}).then(function(postFound){
+    }).then(function(postFound){
         if (postFound) {
-            return res.status(200).json(postFound);
+                return res.status(200).json(postFound);
         }else{
             return res.status(400).json({error : "no posts found"});
         }
@@ -123,6 +104,26 @@ exports.addComment = function(req,res){
         return res.status(500).json({error : "server error"});
     })
 };
+
+
+exports.getAllComment = (req, res) => {
+
+    modelsComment.Comment.findAll(
+        {
+            where:{messageId : req.params.id}, 
+            include:[
+                      {model: modelsUser.User,
+                       attributes:['username','userId']}
+                    ]
+        })
+    .then(function(onSucces){
+        return res.status(200).json({onSucces});
+    })
+    .catch(function(onFail){
+        return res.status(500).json({error : " server error" + onFail});
+    })
+};
+
 
 
 exports.deleteComment = function(req,res){
@@ -171,7 +172,7 @@ exports.likes = function(req,res){
         if (onSucces) {
 
                 // je verifie si l'user ne le pas deja liké
-                modelsLike.Like.findOne({where : {userLiked : userId,messageId : req.params.id}})
+                modelsLike.Like.findOne({where : {userLiked : userId ,messageId : req.params.id}})
                 .then(function(found){
                     // si il la déja liké je retourne un status 400  "vous avez déja liké"
                     if (found) 
@@ -199,11 +200,18 @@ exports.likes = function(req,res){
                              return res.status(200).json({result : "LIKE +1"})
                         } // si la req.body.like == 0 alors je decremente et je delete l'user ect
                         
-                    
+                        if(req.body.like === 0) 
+                        {   
+                           return res.status(400).json({error : "Like is already equal to 0"}); 
+                        }
+
+                        
                 }).catch(function(onFail){
                     return res.status(500).json({error : " server error !" + onFail});
                    
                 }); 
+        }else{
+            return res.status(400).json({error : "Post not found ! "})
         }
     })
     .catch(function(onFail){
@@ -218,4 +226,3 @@ exports.likes = function(req,res){
 
 
     
-  
