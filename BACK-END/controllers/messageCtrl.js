@@ -6,7 +6,6 @@ const modelsLike = require("../models/like");
 const token = require('../middleware/jwt');
 const fs = require('file-system');
 
-
 exports.createPost = function (req, res) {
     
     const content = req.body.content;
@@ -142,18 +141,23 @@ exports.deleteComment = function(req,res){
     });
 };
 
+
+
+
 // AJOUTER LA SUPPRESSION DE TOUT LES LIKE ET COMMENT DU POST
 exports.deletePost = function(req,res){
+    const role = token.decryptIsAdmin(req);
     const userId = token.decrypt(req);
     models.Message.findOne({where : {id : req.params.id}})
     .then(function(postFound){
         console.log(postFound);
-        if (userId == postFound.userUserId) {
+        if (userId == postFound.userUserId || role == 0) {
             modelsComment.Comment.destroy({where :{messageId : req.params.id}})
             postFound.destroy();
-            return res.status(200).json({result : "Post Has Been Deleted"})
+            return res.status(200).json({result : "Post Has Been Deleted"});
         }else{
-            return res.status(400).json({error : "You do not have the required permissions"})
+            console.log(role);
+            return res.status(400).json({error : "You do not have the required permissions"});
         }
     })
     .catch(function(err){

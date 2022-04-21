@@ -1,6 +1,6 @@
 // import
 const bcrypt = require("bcrypt");
-jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const token = require('../middleware/jwt');
 const dotenv = require('dotenv');
 require('dotenv').config();
@@ -52,7 +52,7 @@ exports.signup = function (req, res) {
                         password: hash,
                         username: username,
                         bio: bio,
-                        isAdmin: true,
+                        isAdmin: 0,
                     })
                     .then(function (newUser) {
                             return res.status(201).json({'userId': newUser.userId});
@@ -89,9 +89,13 @@ exports.login = function (req,res){
               {
                 res.status(200).json({
                     userId: userFound.userId,
+                    isAdmin : userFound.isAdmin,
                     token: jwt.sign(
                         // 3 arguments
-                        {userId : userFound.userId},
+                        {
+                            userId : userFound.userId,
+                            isAdmin : userFound.isAdmin,
+                        },
                         `${process.env.SECRETE_KEY_JWT}`,
                         {expiresIn : '12h'}
                     )
@@ -242,7 +246,7 @@ models.User.findOne({where : {email : email}})
                 to: email,
                 subject: 'Reset Password Link - Groupomania',
                 html: `<img src="https://s3-eu-west-1.amazonaws.com/course.oc-static.com/projects/Digital+Project+Manager/Group+Project/Groupomania-reddit-FR/assets/icon-left-font.png" alt="logo groupomania">
-                <p style="font-size:1.3em;">Vous avez demandé la réinitialisation du mot de passe, veuillez utiliser ce  <a href="http://localhost:3000/api/auth/reset-password/${emailFound.userId}/${token}"><button style="color:red;font-weight:bold;">BOUTON</button></a> pour réinitialiser votre mot de passe</p>
+                <p style="font-size:1.3em;">Vous avez demandé la réinitialisation du mot de passe, veuillez utiliser ce  <a href="http://localhost:3000/api/auth/reset-password/${emailFound.userId}${token}"><button style="color:red;font-weight:bold;">BOUTON</button></a> pour réinitialiser votre mot de passe</p>
                 <p style="font-size:1.6em;">ce lien est valable <strong style="color:red;">15 minutes</strong> </p>
                 `
             };

@@ -22,11 +22,22 @@ module.exports = (req, res, next) => {
   };
 
 
- function decrypt(req){
+function decrypt(req){
       const token = req.headers.authorization.split(' ')[1];    
       const decodedToken = jwt.verify(token,`${process.env.SECRETE_KEY_JWT}`);
       const userId = decodedToken.userId;
       return userId;
 }
 
+
+function decryptIsAdmin(req){
+  const token = req.headers.authorization.split(' ')[1];    
+  const decodedToken = jwt.verify(token,`${process.env.SECRETE_KEY_JWT}`);
+  const isAdmin = decodedToken.isAdmin;
+  return isAdmin;
+  console.log(isAdmin);
+}
+
+
+module.exports.decryptIsAdmin = decryptIsAdmin;
 module.exports.decrypt = decrypt;
