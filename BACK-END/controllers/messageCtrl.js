@@ -125,7 +125,7 @@ exports.getAllComment = (req, res) => {
 
 
 
-exports.deleteComment = function(req,res){
+exports.deleteComment = function(req,res){                            
     const userId = token.decrypt(req);
     modelsComment.Comment.destroy({where : {userId : userId , id : req.params.id}})
     .then(function(onSucces){
@@ -140,7 +140,6 @@ exports.deleteComment = function(req,res){
 
     });
 };
-
 
 
 

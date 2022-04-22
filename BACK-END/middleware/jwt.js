@@ -35,7 +35,6 @@ function decryptIsAdmin(req){
   const decodedToken = jwt.verify(token,`${process.env.SECRETE_KEY_JWT}`);
   const isAdmin = decodedToken.isAdmin;
   return isAdmin;
-  console.log(isAdmin);
 }
 
 

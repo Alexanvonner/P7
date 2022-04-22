@@ -13,7 +13,7 @@ const multer = require("../middleware/multer-config");
 const router = express.Router();
 
 // route signup
-router.post('/signup',userController.signup);
+router.post('/signup',middlewarePassword,userController.signup);
 // route login
 router.post("/login", userController.login)
 // route getUserProfil
