@@ -8,22 +8,31 @@ const fs = require('file-system');
 
 exports.createPost = function (req, res) {
     
+    console.log(req.body)
+
     const content = req.body.content;
     const attachment = req.body.attachment;
 
     const userId = token.decrypt(req);
 
-    models.Message.create({
-        content:  content,
-        attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`, 
-        like: 0,
-        userUserId : userId
+    if (content !== null) {
+        console.log(req.headers);
+        models.Message.create({
+            content:  content,
+            attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`, 
+            like: 0,
+            userUserId : userId
 
-    }).then(function (message) {
-        return res.status(200).json({ 'result': 'post create' });
-    }).catch(function (err) {
-        return res.status(500).json({ "error": "server error"+ err});
-    });
+        }).then(function (message) {
+            return res.status(200).json({ 'result': 'post create' });
+        }).catch(function (err) {
+            return res.status(500).json({ "error": "server error"+ err});
+        });   
+    }else{
+        return res.status(500).json({ "error": " msg content is null "});
+        console.log("je suis ici null content");
+    }
+    
 
 
 };
@@ -125,7 +134,7 @@ exports.getAllComment = (req, res) => {
 
 
 
-exports.deleteComment = function(req,res){                            
+exports.deleteComment = function(req,res){             
     const userId = token.decrypt(req);
     modelsComment.Comment.destroy({where : {userId : userId , id : req.params.id}})
     .then(function(onSucces){

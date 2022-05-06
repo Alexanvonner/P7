@@ -4,14 +4,11 @@ const express = require('express');
 const auth = require("../middleware/jwt");
 const multer =  require('../middleware/multer-config');
 
-
-
-
 // la fonction Router()
 const router = express.Router();
 
 // MESSAGES
-router.post('/post',auth,multer,userController.createPost);
+router.post('/post',auth ,multer ,userController.createPost );
 router.patch('/post/:id',auth,multer,userController.UpdatePost);
 router.delete('/post/:id',userController.deletePost);
 router.get('/post', userController.getAllPost);
