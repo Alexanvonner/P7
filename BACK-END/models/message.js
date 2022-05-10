@@ -7,7 +7,7 @@ const Message =  connexion.define('message',{
      attachment: {type : Sequelize.STRING(255), required: false},
      like : Sequelize.INTEGER,
      userUserId : Sequelize.INTEGER
-},{tableName: 'Message',timestamps:false, underscored: false });
+},{tableName: 'Message',timestamps:true, underscored: false });
 Message.belongsTo(models.User);
 
 //Message.sync({force : true})

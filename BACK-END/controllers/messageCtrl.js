@@ -8,34 +8,24 @@ const fs = require('file-system');
 
 exports.createPost = function (req, res) {
     
-    console.log(req.body)
-
-    const content = req.body.content;
-    const attachment = req.body.attachment;
-
+   
     const userId = token.decrypt(req);
 
-    if (content !== null) {
-        console.log(req.headers);
+    console.log(req.file)
         models.Message.create({
-            content:  content,
-            attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`, 
+            content:  req.body.content,
+            attachment: req.file != null ?`${req.protocol}://${req.get('host')}/images/${req.file.filename}`:null , 
             like: 0,
             userUserId : userId
-
         }).then(function (message) {
             return res.status(200).json({ 'result': 'post create' });
         }).catch(function (err) {
-            return res.status(500).json({ "error": "server error"+ err});
-        });   
-    }else{
-        return res.status(500).json({ "error": " msg content is null "});
-        console.log("je suis ici null content");
-    }
+            return res.status(500).json({ "error": "server error" + err});
+        });  
+ };
     
+   
 
-
-};
 
 exports.UpdatePost = function(req,res){
     const userId = token.decrypt(req);
@@ -85,7 +75,7 @@ exports.getAllPost = function(req,res){
             include: 
             [
               { model: modelsUser.User,
-                attributes : ["userId","username","email","isAdmin"]
+                attributes : ["userId","username","profilPicture","isAdmin"]
               },
             ]
     }).then(function(postFound){
@@ -105,7 +95,8 @@ exports.addComment = function(req,res){
     modelsComment.Comment.create({
         comment : req.body.comment,
         messageId : req.params.id,
-        userId : userId 
+        userId : userId ,
+        userUserId : userId,
     }).then(function(comment){
         return res.status(200).json({result : "Comment created successfully !"})
     }).catch(function(err){
@@ -121,7 +112,7 @@ exports.getAllComment = (req, res) => {
             where:{messageId : req.params.id}, 
             include:[
                       {model: modelsUser.User,
-                       attributes:['username','userId']}
+                       attributes:['username','profilPicture']}
                     ]
         })
     .then(function(onSucces){
