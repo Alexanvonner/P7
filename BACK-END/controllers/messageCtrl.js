@@ -71,7 +71,8 @@ exports.UpdatePost = function(req,res){
 
 exports.getAllPost = function(req,res){
     models.Message.findAll(
-        {attributes : ["content","attachment","userUserId","id"],
+        {attributes : ["content","attachment","userUserId","id","like"],
+            order: [['createdAt', 'DESC']],
             include: 
             [
               { model: modelsUser.User,

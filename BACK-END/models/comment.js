@@ -9,6 +9,7 @@ const Comment =  connexion.define('comment',{
 },{tableName: 'Comment',timestamps:false, underscored: false });
 Comment.belongsTo(models.Message);
 Comment.belongsTo(modelsUser.User);
+
 //Comment.sync({force : true})
 
 
