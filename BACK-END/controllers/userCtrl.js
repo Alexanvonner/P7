@@ -270,6 +270,7 @@ models.User.findOne({where : {email : email}})
 
 exports.getResetPassword = function(req,res){
     const {id,token} = req.params;
+    console.log('je suis ici dans le get');
     models.User.findOne({where : {userId : id}})
     .then(function(onSucces){
         const secret = `${process.env.SECRETE_KEY_JWT}`;
@@ -281,7 +282,7 @@ exports.getResetPassword = function(req,res){
             }
         
     }).catch(function(onFail){
-        return res.status(500).json({error :`Server error OR expired token ==> ${onFail.message}`});
+        return res.status(500).json({error :`Server error `});
     });
 };
 
