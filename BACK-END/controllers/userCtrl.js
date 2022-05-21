@@ -246,7 +246,7 @@ models.User.findOne({where : {email : email}})
                 to: email,
                 subject: 'Reset Password Link - Groupomania',
                 html: `<img src="https://s3-eu-west-1.amazonaws.com/course.oc-static.com/projects/Digital+Project+Manager/Group+Project/Groupomania-reddit-FR/assets/icon-left-font.png" alt="logo groupomania">
-                <p style="font-size:1.3em;">Vous avez demandé la réinitialisation du mot de passe, veuillez utiliser ce  <a href="http://localhost:8000/reset-password/?id=${emailFound.userId}?token=${token}"><button style="color:red;font-weight:bold;">BOUTON</button></a> pour réinitialiser votre mot de passe</p>
+                <p style="font-size:1.3em;">Vous avez demandé la réinitialisation du mot de passe, veuillez utiliser ce  <a href="http://localhost:8000/reset-password/?id=${emailFound.userId}&token=${token}"><button style="color:red;font-weight:bold;">BOUTON</button></a> pour réinitialiser votre mot de passe</p>
                 <p style="font-size:1.6em;">ce lien est valable <strong style="color:red;">15 minutes</strong> </p>
                 `
             };
