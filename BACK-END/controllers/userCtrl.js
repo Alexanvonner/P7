@@ -144,7 +144,7 @@ exports.updateUserProfil = function(req,res){
                         return res.status(200).json({ result: 'Biography Updated !'}); 
                     }
                     if (req.file) {
-                        if (userFound.profilPicture !== null) {
+                        if (userFound.profilPicture) {
                             const filename = userFound.profilPicture.split("/images/")[1];
                             fs.unlink("./images/"+filename,(err) => {
                             if (err) throw err;
@@ -188,8 +188,9 @@ exports.deleteAccount = function(req,res){
     models.User.findOne({where : {userId : userId }})
     .then(function(deleteUser){
         if (deleteUser) {
-            if (deleteUser.profilPicture !== null || deleteUser.profilPicture !== undefined) {
-                console.log("log de profilPicture");
+
+            if (deleteUser.profilPicture) {
+                console.log("log de delete profilpicture");
                 console.log(deleteUser.profilPicture);
                 const filename = deleteUser.profilPicture.split("/images/")[1];
                 fs.unlink("./images/"+filename,(err) => {
@@ -197,14 +198,17 @@ exports.deleteAccount = function(req,res){
                 console.log('Fichier supprimé !');
                 });
             }
-            console.log("log de profilpicture");
-                console.log(deleteUser.profilPicture);
                 models.User.destroy({where :{userId : userId}});
                 // search  a Message / Comment / Like belonging to the user
-                modelsMessage.Message.destroy({where : {userUserId : userId}})
-                modelsComment.Comment.destroy({where : {userId : userId}});
+                modelsMessage.Message.destroy({where : {userUserId : userId}});
                 modelsLike.Like.destroy({where : {userLiked : userId}});
+                modelsComment.Comment.destroy({where : {userId : userId}});
+                
                 return res.status(200).json({"response" : "Account has been deleted"})
+            
+
+            
+                
 
         }else{
             return res.status(404).json({'error' : 'User not found'});
