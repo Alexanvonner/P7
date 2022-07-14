@@ -114,12 +114,8 @@ exports.login = function (req,res){
 
 exports.getUserProfil = function(req,res){
     var userId = token.decrypt(req);
-
-    if (userId < 0) {
-        return res.status(400).json({'error' : 'wrong token'});
-    } 
     models.User.findOne({
-        attributes: ["userId","email","username","bio","profilPicture"],
+        attributes: ["userId","email","username","bio","profilPicture", "isAdmin"],
         where : {userId : userId}})
         .then(function(user)
         {
@@ -144,7 +140,7 @@ exports.updateUserProfil = function(req,res){
                         return res.status(200).json({ result: 'Biography Updated !'}); 
                     }
                     if (req.file) {
-                        if (userFound.profilPicture) {
+                        if (userFound.profilPicture && userFound.profilPicture !== "https://fiverr-res.cloudinary.com/images/t_main1,q_auto,f_auto,q_auto,f_auto/gigs/112692698/original/acca8b04ea6f9923ef49eea29efdfcba42fb4768/logo-design-for-profile-picture-dessin-pour-photo-de-profil.png" ) {
                             const filename = userFound.profilPicture.split("/images/")[1];
                             fs.unlink("./images/"+filename,(err) => {
                             if (err) throw err;
@@ -181,8 +177,6 @@ exports.getOneUser = function(req,res){
     })
 };
 
-// AJOUTER LA SUPPRESSION DE TOUT LES POST LIKE COMMENTAIRE ECT SI L'USER DELETE SONT ACCOUNT
-// ++ supprime photo profil user
 exports.deleteAccount = function(req,res){
     var userId = token.decrypt(req);
     models.User.findOne({where : {userId : userId }})
